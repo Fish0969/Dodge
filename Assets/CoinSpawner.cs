@@ -10,6 +10,7 @@ public class CoinSpawner : MonoBehaviour
 
     private const int MAX_COINS = 2;
     private List<GameObject> activeCoins = new List<GameObject>();
+    private bool active = true;
 
     void Start()
     {
@@ -19,10 +20,20 @@ public class CoinSpawner : MonoBehaviour
 
     void Update()
     {
+        if (!active) return;
+
         activeCoins.RemoveAll(c => c == null);
 
         while (activeCoins.Count < MAX_COINS)
             SpawnCoin();
+    }
+
+    public void StopAndClear()
+    {
+        active = false;
+        foreach (GameObject coin in activeCoins)
+            if (coin != null) Destroy(coin);
+        activeCoins.Clear();
     }
 
     void SpawnCoin()

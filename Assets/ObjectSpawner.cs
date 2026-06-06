@@ -11,8 +11,11 @@ public class ObjectSpawner : MonoBehaviour
     public Sprite obstacleSprite;
 
     [Header("Spawning")]
-    public float spawnInterval = 1.5f;
-    public float moveSpeed = 4f;
+    public float spawnInterval     = 1.5f;
+    public float minSpawnInterval  = 0.4f;
+    public float intervalDecreaseRate = 0.02f; // seconds removed per second played
+    public float moveSpeed         = 4f;
+    public float hitboxShrink      = 0.2f;
 
     void Start()
     {
@@ -21,10 +24,14 @@ public class ObjectSpawner : MonoBehaviour
 
     IEnumerator SpawnLoop()
     {
-        while (true)
+        float startTime = Time.time;
+        while (player != null)
         {
-            yield return new WaitForSeconds(spawnInterval);
-            SpawnObstacle();
+            float elapsed  = Time.time - startTime;
+            float interval = Mathf.Max(minSpawnInterval, spawnInterval - elapsed * intervalDecreaseRate);
+            yield return new WaitForSeconds(interval);
+            if (player != null)
+                SpawnObstacle();
         }
     }
 
@@ -39,11 +46,25 @@ public class ObjectSpawner : MonoBehaviour
         float tileW = tileSize.x;
         float tileH = tileSize.y;
 
-        // Collect rows/cols already threatened by active obstacles
+        // Grid world bounds (tile centers)
+        float gridMinX = tiles[0].position.x;
+        float gridMaxX = tiles[2].position.x;
+        float gridMinY = tiles[0].position.y;
+        float gridMaxY = tiles[6].position.y;
+
+        // Only count obstacles that haven't yet passed through the far grid edge
         HashSet<int> curRows = new HashSet<int>();
         HashSet<int> curCols = new HashSet<int>();
         foreach (Obstacle obs in FindObjectsByType<Obstacle>(FindObjectsSortMode.None))
         {
+            Vector3 p = obs.transform.position;
+            bool stillThreat =
+                obs.direction.x > 0 ? p.x <= gridMaxX :   // moving right: threat until past right edge
+                obs.direction.x < 0 ? p.x >= gridMinX :   // moving left:  threat until past left edge
+                obs.direction.y > 0 ? p.y <= gridMaxY :   // moving up:    threat until past top edge
+                                      p.y >= gridMinY;     // moving down:  threat until past bottom edge
+
+            if (!stillThreat) continue;
             foreach (int r in obs.threatenedRows) curRows.Add(r);
             foreach (int c in obs.threatenedCols) curCols.Add(c);
         }
@@ -97,7 +118,7 @@ public class ObjectSpawner : MonoBehaviour
             foreach (int r in newRows) testRows.Add(r);
             foreach (int c in newCols) testCols.Add(c);
 
-            if (testRows.Count < 3 && testCols.Count < 3)
+            if ((3 - testRows.Count) * (3 - testCols.Count) >= 2)
             {
                 CreateObstacle(spawnPos, scale, direction, newRows, newCols, camW, camH);
                 return;
@@ -119,6 +140,7 @@ public class ObjectSpawner : MonoBehaviour
 
         BoxCollider2D col2d = obj.AddComponent<BoxCollider2D>();
         col2d.isTrigger = true;
+        col2d.size = new Vector2(1f - hitboxShrink, 1f - hitboxShrink);
 
         Rigidbody2D rb = obj.AddComponent<Rigidbody2D>();
         rb.gravityScale = 0f;

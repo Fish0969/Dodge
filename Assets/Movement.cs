@@ -14,6 +14,10 @@ public class Movement : MonoBehaviour
     private int gridRow = 1;
     private Coroutine slideCoroutine;
 
+    public int  GridCol   => gridCol;
+    public int  GridRow   => gridRow;
+    public bool IsMoving  => slideCoroutine != null;
+
     void Start()
     {
         transform.position = TilePos(gridCol, gridRow);
@@ -28,8 +32,12 @@ public class Movement : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))  dc = -1;
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) dc =  1;
 
-        if (dc == 0 && dr == 0) return;
+        if (dc != 0 || dr != 0)
+            RequestMove(dc, dr);
+    }
 
+    public void RequestMove(int dc, int dr)
+    {
         int newCol = Mathf.Clamp(gridCol + dc, 0, 2);
         int newRow = Mathf.Clamp(gridRow + dr, 0, 2);
 
@@ -58,5 +66,6 @@ public class Movement : MonoBehaviour
             yield return null;
         }
         transform.position = target;
+        slideCoroutine = null;
     }
 }

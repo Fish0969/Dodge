@@ -5,8 +5,8 @@ public class Obstacle : MonoBehaviour
     public int[] threatenedRows = new int[0];
     public int[] threatenedCols = new int[0];
 
-    private Vector2 direction;
-    private float speed;
+    public Vector2 direction;
+    public float speed;
     private Transform player;
     private float camW;
     private float camH;
@@ -38,7 +38,12 @@ public class Obstacle : MonoBehaviour
     {
         if (player != null && other.transform == player)
         {
-            Destroy(player.gameObject);
+            PlayerDeath death = player.GetComponent<PlayerDeath>();
+            if (death != null)
+                death.Die();
+            else
+                Destroy(player.gameObject);
+
             Destroy(gameObject);
         }
     }
