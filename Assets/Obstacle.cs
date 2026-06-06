@@ -2,19 +2,24 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
+    public int[] threatenedRows = new int[0];
+    public int[] threatenedCols = new int[0];
+
     private Vector2 direction;
     private float speed;
     private Transform player;
     private float camW;
     private float camH;
 
-    public void Init(Vector2 dir, float spd, Transform plr, float cw, float ch)
+    public void Init(Vector2 dir, float spd, Transform plr, float cw, float ch, int[] rows, int[] cols)
     {
-        direction = dir;
-        speed     = spd;
-        player    = plr;
-        camW      = cw;
-        camH      = ch;
+        direction      = dir;
+        speed          = spd;
+        player         = plr;
+        camW           = cw;
+        camH           = ch;
+        threatenedRows = rows;
+        threatenedCols = cols;
     }
 
     void Update()
