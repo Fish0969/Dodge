@@ -45,6 +45,21 @@ public class PlayerDeath : MonoBehaviour
         if (coinSpawner != null)
             coinSpawner.StopAndClear();
 
+        // Restore time in case the slow orb effect was active
+        CoinPickup coinPickup = FindFirstObjectByType<CoinPickup>();
+        if (coinPickup != null)
+        {
+            int best = PlayerPrefs.GetInt("BestScore", 0);
+            if (coinPickup.score > best)
+            {
+                PlayerPrefs.SetInt("BestScore", coinPickup.score);
+                PlayerPrefs.Save();
+            }
+            coinPickup.ResetSlow();
+        }
+        else
+            Time.timeScale = 1f;
+
         Destroy(gameObject);
     }
 

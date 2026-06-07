@@ -38,6 +38,12 @@ public class Obstacle : MonoBehaviour
     {
         if (player != null && other.transform == player)
         {
+            if (CoinPickup.IsRainbow)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             PlayerDeath death = player.GetComponent<PlayerDeath>();
             if (death != null)
                 death.Die();

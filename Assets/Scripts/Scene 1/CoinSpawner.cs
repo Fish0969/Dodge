@@ -7,6 +7,8 @@ public class CoinSpawner : MonoBehaviour
     // Same tiles array as Movement.cs — fill identically
     public Transform[] tiles = new Transform[9];
     public GameObject coinPrefab;
+    [Range(1, 50)]  public int blueOrbChance    = 15;
+    [Range(1, 500)] public int rainbowOrbChance = 100;
 
     private const int MAX_COINS = 2;
     private List<GameObject> activeCoins = new List<GameObject>();
@@ -45,6 +47,17 @@ public class CoinSpawner : MonoBehaviour
         pos.z = -0.5f;
 
         GameObject coin = Instantiate(coinPrefab, pos, Quaternion.identity);
+
+        if (Random.Range(0, blueOrbChance) == 0)
+        {
+            coin.AddComponent<BlueOrb>();
+            SpriteRenderer sr = coin.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null) sr.color = new Color(0.2f, 0.5f, 1f);
+        }
+        else if (Random.Range(0, rainbowOrbChance) == 0)
+        {
+            coin.AddComponent<RainbowOrb>();
+        }
 
         activeCoins.Add(coin);
     }

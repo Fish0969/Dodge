@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Pause : MonoBehaviour
@@ -23,8 +24,13 @@ public class Pause : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && !paused)
-            SetPaused(true);
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!paused)
+                SetPaused(true);
+            else
+                GoToStart();
+        }
 
         if (!paused) return;
 
@@ -50,6 +56,12 @@ public class Pause : MonoBehaviour
         circleFill.fillAmount = 0f;
         overlay.gameObject.SetActive(p);
         barPanel.SetActive(p);
+    }
+
+    void GoToStart()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Start");
     }
 
     void BuildUI()
@@ -101,18 +113,18 @@ public class Pause : MonoBehaviour
         circleFill.fillAmount    = 0f;
         PlaceCircle(fillCircle.GetComponent<RectTransform>());
 
-        // Text
+        // Labels
         GameObject labelObj = new GameObject("Label");
         labelObj.transform.SetParent(panel.transform, false);
         TextMeshProUGUI label = labelObj.AddComponent<TextMeshProUGUI>();
-        label.text      = "Hold Space to continue";
+        label.text      = "Hold Space to continue\nEsc: Return to menu";
         label.alignment = TextAlignmentOptions.MidlineLeft;
         label.fontSize  = 16;
         label.color     = Color.white;
         RectTransform lr = labelObj.GetComponent<RectTransform>();
         lr.anchorMin = Vector2.zero;
         lr.anchorMax = Vector2.one;
-        lr.offsetMin = new Vector2(90f, 0f); // leave room for the circle
+        lr.offsetMin = new Vector2(90f, 0f);
         lr.offsetMax = Vector2.zero;
     }
 
